@@ -1,3 +1,9 @@
+// ============================================================
+// SECCIÓN 1: BUSCADOR
+// Escucha el formulario y lanza la búsqueda cuando el usuario
+// hace submit.
+// ============================================================
+
 const formSearch = document.getElementById('frm-search');
 
 // Escucha el evento submit del formulario de búsqueda
@@ -28,34 +34,17 @@ async function searchProducts(text) {
     searchResults.innerHTML = '';
 
     for (let product of data.products) {
-        const { title, thumbnail, price, rating } = product;
-
-        searchResults.innerHTML += `
-            <div class="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden">
-                <div class="h-48 bg-zinc-800 flex items-center justify-center">
-                    <img src="${thumbnail}" alt="${title}" class="h-full w-full object-cover">
-                </div>
-
-                <div class="p-4">
-                    <div class="flex items-center justify-between">
-                        <h3 class="font-semibold text-sm">
-                            ${title}
-                        </h3>
-
-                        <span class="text-yellow-400 text-sm">
-                            ★ ${rating}
-                        </span>
-                    </div>
-
-                    <p class="text-blue-400 font-bold mt-2">
-                        $${price}
-                    </p>
-                </div>
-            </div>`;
+        searchResults.innerHTML += crearTarjeta(product, true);
     }
 }
 
-// Buscar por categoria 
+
+// ============================================================
+// SECCIÓN 2: CATÁLOGO POR CATEGORÍA
+// Filtra los productos según la categoría seleccionada en el
+// <select> del HTML y muestra su paginación.
+// ============================================================
+
 async function getByCategory(categoria, pagina = 1) {
     const catalog = document.getElementById('catalog');
 
@@ -71,24 +60,7 @@ async function getByCategory(categoria, pagina = 1) {
     catalog.innerHTML = '';
 
     for (let product of data.products) {
-        const { title, thumbnail, price } = product;
-
-        catalog.innerHTML += `
-            <div class="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden">
-                <div class="h-48 bg-zinc-800 flex items-center justify-center">
-                    <img src="${thumbnail}" alt="${title}" class="h-full w-full object-cover">
-                </div>
-
-                <div class="p-4">
-                    <h3 class="font-semibold text-sm">
-                        ${title}
-                    </h3>
-
-                    <p class="text-blue-400 font-bold mt-1">
-                        $${price}
-                    </p>
-                </div>
-            </div>`;
+        catalog.innerHTML += crearTarjeta(product);
     }
 
     renderPagination(data.total, 'getByCategory', categoria);
@@ -101,7 +73,12 @@ async function getByCategory(categoria, pagina = 1) {
         'bg-blue-600 px-5 py-2 rounded-xl';
 }
 
-// Carga el catálogo general de productos al abrir la página
+
+// ============================================================
+// SECCIÓN 3: CATÁLOGO GENERAL
+// Carga todos los productos al abrir la página, con paginación.
+// ============================================================
+
 async function getCatalog(pagina) {
     const catalog = document.getElementById('catalog');
 
@@ -114,24 +91,7 @@ async function getCatalog(pagina) {
     catalog.innerHTML = '';
 
     for (let product of data.products) {
-        const { title, thumbnail, price } = product;
-
-        catalog.innerHTML += `
-            <div class="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden">
-                <div class="h-48 bg-zinc-800 flex items-center justify-center">
-                    <img src="${thumbnail}" alt="${title}" class="h-full w-full object-cover">
-                </div>
-
-                <div class="p-4">
-                    <h3 class="font-semibold text-sm">
-                        ${title}
-                    </h3>
-
-                    <p class="text-blue-400 font-bold mt-1">
-                        $${price}
-                    </p>
-                </div>
-            </div>`;
+        catalog.innerHTML += crearTarjeta(product);
     }
 
     renderPagination(data.total, 'getCatalog');
@@ -144,7 +104,12 @@ async function getCatalog(pagina) {
         'bg-blue-600 px-5 py-2 rounded-xl';
 }
 
-//Generar botones
+
+// ============================================================
+// SECCIÓN 4: PAGINACIÓN
+// Genera los botones de página según el total de productos.
+// ============================================================
+
 function renderPagination(totalProductos, funcion, categoria = '') {
     const pagination = document.getElementById('pagination');
 
@@ -165,13 +130,53 @@ function renderPagination(totalProductos, funcion, categoria = '') {
     }
 }
 
-//Ver todo
-function showAllProducts() {
-    // Reinicia el select
-    document.getElementById('select-categoria').value = '';
 
-    // Carga nuevamente el catálogo completo
+// ============================================================
+// SECCIÓN 5: HELPERS (funciones de apoyo reutilizables)
+// Aquí van funciones pequeñas que usan otras secciones para
+// no repetir código.
+// ============================================================
+
+// Genera el HTML de una tarjeta de producto.
+// Si mostrarRating es true, muestra la estrella y el rating.
+function crearTarjeta(product, mostrarRating = false) {
+    const { title, thumbnail, price, rating } = product;
+
+    return `
+        <div class="bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden">
+            <div class="h-48 bg-zinc-800 flex items-center justify-center">
+                <img src="${thumbnail}" alt="${title}" class="h-full w-full object-cover">
+            </div>
+
+            <div class="p-4">
+                <div class="flex items-center justify-between">
+                    <h3 class="font-semibold text-sm">
+                        ${title}
+                    </h3>
+
+                    ${mostrarRating ? `
+                    <span class="text-yellow-400 text-sm">
+                        ★ ${rating}
+                    </span>` : ''}
+                </div>
+
+                <p class="text-blue-400 font-bold mt-2">
+                    $${price}
+                </p>
+            </div>
+        </div>`;
+}
+
+// Reinicia el select y carga el catálogo completo desde la página 1
+function showAllProducts() {
+    document.getElementById('select-categoria').value = '';
     getCatalog(1);
 }
+
+
+// ============================================================
+// INICIO
+// Carga el catálogo al abrir la página
+// ============================================================
 
 getCatalog(1);
